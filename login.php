@@ -24,6 +24,7 @@
 						window.location.href = 'moguClass/myclass.php';
 					} else {
 						// 未绑定跳转登录页
+						console.log("<?php echo $_SESSION['uid']; ?>");
 						window.location.href = 'moguLogin/moguLogin.php';
 					}
 					

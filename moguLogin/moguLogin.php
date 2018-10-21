@@ -1,3 +1,6 @@
+<?php
+	session_start();
+?>
 <!DOCTYPE html>
 <html class="ui-page-login">
 	<head>
@@ -108,26 +111,16 @@
 			</p>
 			<form id='login-form' class="mui-input-group">
 				<div class="mui-input-row">
-					<label>账号</label>
-					<input id='account' type="text" class="mui-input-clear mui-input" placeholder="请输入手机号">
+					<label>学号</label>
+					<input id='account' type="text" class="mui-input-clear mui-input" placeholder="请输入学号">
 				</div>
 				<div class="mui-input-row">
-					<label>密码</label>
-					<input id='password' type="password" class="mui-input-clear mui-input" placeholder="请输入密码">
+					<label>手机号</label>
+					<input id='password' type="text" class="mui-input-clear mui-input" placeholder="请输入手机号">
 				</div>
 			</form>
-			<!--<form class="mui-input-group">
-				<ul class="mui-table-view mui-table-view-chevron">
-					<li class="mui-table-view-cell">
-						自动登录
-						<div id="autoLogin" class="mui-switch">
-							<div class="mui-switch-handle"></div>
-						</div>
-					</li>
-				</ul>
-			</form>-->
 			<div class="mui-content-padded">
-				<button id='login' class="mui-btn mui-btn-block mui-btn-primary">登录</button>
+				<button id='login' class="mui-btn mui-btn-block mui-btn-primary">点击绑定</button>
 			</div>
 			<div class="mui-content-padded oauth-area">
 
@@ -144,36 +137,45 @@
 			var passwordBox = document.getElementById('password');
 			var loginButton = document.getElementById('login');
 			
+			console.log("<?php echo $_SESSION ?>");
+
 			// 用户点击登录按钮触发ajax请求
 			loginButton.addEventListener('tap', function(event) {
-				mui.ajax('http://116.62.212.85:8082/user/bind', {
-					data:{
-						account:accountBox.value,
-						password:passwordBox.value, 
-						openid:"<?php echo $_SESSION['uid']; ?>"
-					},
-					dataType: 'json',
-					type:'post',//HTTP请求类型
-					timeout:10000,//超时时间设置为10秒；
-					success:function(data){
-						//服务器返回响应，判断是否有绑定
-						if (data['message'] == 'yes') {
-							// 已绑定直接跳转课程页
-							mui.toast('绑定成功！下次可以自动登录');
-							window.location.href = '../moguClass/myclass.php';
-						} else {
-							// 未绑定跳转登录页
-							mui.alert('绑定失败，请检查账号密码并重新登录！', '提示', function(){
-								window.location.href = 'moguLogin.php';
-							});	
+// 				var myreg=/^[1][3,4,5,7,8][0-9]{9}$/;
+// 				if (!myreg.test(accountBox.value)) {
+// 					mui.alert('手机号格式错误，请重新输入！');
+// 				} else {
+					mui.ajax('http://116.62.212.85:8082/user/bind', {
+						data:{
+							openid:"<?php echo $_SESSION['uid']; ?>",
+							studentno:accountBox.value,
+							mobileno:passwordBox.value, 
+							wxnickname:"<?php echo $_SESSION['uname']; ?>",
+							wximgurl:"<?php echo $_SESSION['uface']; ?>"
+						},
+						dataType: 'json',
+						type:'post',//HTTP请求类型
+						timeout:10000,//超时时间设置为10秒；
+						success:function(data){
+							//服务器返回响应，判断是否有绑定
+							if (data['message'] == 'yes') {
+								// 已绑定直接跳转课程页
+								mui.toast('绑定成功！下次可以自动登录');
+								window.location.href = '../moguClass/myclass.php';
+							} else {
+								// 未绑定跳转登录页
+								mui.alert('绑定失败，请检查输入内容！', '提示', function(){
+									//window.location.href = 'moguLogin.php';
+								});	
+							}
+							
+						},
+						error:function(xhr,type,errorThrown){
+							//异常处理；
+							console.log(type);
 						}
-						
-					},
-					error:function(xhr,type,errorThrown){
-						//异常处理；
-						console.log(type);
-					}
-				});
+					});
+				// }
 			});
 			
 		</script>
